@@ -6,12 +6,15 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "start": "bun src/index.ts"
+    "start": "tsx src/index.ts"
   },
   "devDependencies": {
+    "tsx": "^4.19.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "baileys": "^7.0.0-rc.9"
+    "baileys": "^7.0.0-rc.9",
+    "dotenv": "^17.2.3",
+    "qrcode-terminal": "^0.12.0"
   }
 }
