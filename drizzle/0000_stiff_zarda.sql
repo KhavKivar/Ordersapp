@@ -1,0 +1,26 @@
+CREATE TABLE "clients" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "clients_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"name" varchar(255),
+	"localName" varchar(255),
+	"address" varchar(512),
+	"phone" varchar(20)
+);
+--> statement-breakpoint
+CREATE TABLE "orders" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "orders_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"product_id" integer NOT NULL,
+	"client_id" integer NOT NULL,
+	"price_per_unit" integer NOT NULL,
+	"quantity" integer NOT NULL,
+	"total_price" integer GENERATED ALWAYS AS ("orders"."price_per_unit" * "orders"."quantity") STORED
+);
+--> statement-breakpoint
+CREATE TABLE "products" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "products_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"name" varchar(255) NOT NULL,
+	"type" varchar(64) NOT NULL,
+	"size_ml" integer,
+	"sell_price_client" integer NOT NULL,
+	"buy_price_supplier" integer NOT NULL,
+	"description" varchar(1024)
+);

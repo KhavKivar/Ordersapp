@@ -1,41 +1,20 @@
-import makeWASocket, {
-  UserFacingSocketConfig,
-  Browsers,
-  useMultiFileAuthState,
-} from "baileys";
-import qrcode from "qrcode-terminal";
-import "dotenv/config";
+import Fastify from "fastify";
+import { clientsRoutes } from "./routes/clients.js";
+import { aiRoutes } from "./routes/ai.js";
+import { ordersRoutes } from "./routes/orders.js";
+import { productsRoutes } from "./routes/products.js";
+import { startWhatsApp } from "./whatsapp/client.js";
 
-const { state, saveCreds } = await useMultiFileAuthState('auth');
-const config_custom: UserFacingSocketConfig = {
-  browser: Browsers.windows("Google Chrome"),
-  auth: state,
-};
+const fastify = Fastify({ logger: true });
 
-const sock = makeWASocket(config_custom);
+await fastify.register(aiRoutes);
+await fastify.register(productsRoutes);
+await fastify.register(ordersRoutes);
+await fastify.register(clientsRoutes);
 
-sock.ev.on("creds.update", saveCreds);
+const port = Number(process.env.PORT || 3000);
+await fastify.listen({ port, host: "0.0.0.0" });
 
-const targetJid = process.env.TARGET_JID || "";
-const helloMessage = process.env.MESSAGE || "Hello from OrderSapp!";
-let sentOnce = false;
-
-sock.ev.on("connection.update", ({ connection, qr }) => {
-  if (qr) {
-    console.log("Scan this QR with WhatsApp:");
-    qrcode.generate(qr, { small: true });
-  }
-  if (connection) {
-    console.log(`connection: ${connection}`);
-  }
-  if (connection === "open" && !sentOnce) {
-    sentOnce = true;
-    void sock.sendMessage(targetJid, { text: helloMessage});
-  }
-});
-
-sock.ev.on('messages.upsert', ({ messages }) => {
-  const msg = messages[0];
-  if (!msg.message) return;
-  console.log(`New message from ${msg.key.remoteJid}:`, msg.message);
+void startWhatsApp().catch((error) => {
+  fastify.log.error({ error }, "failed to start WhatsApp client");
 });

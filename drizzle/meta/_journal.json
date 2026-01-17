@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1768581905188,
+      "tag": "0000_stiff_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768582500000,
+      "tag": "0001_seed_products",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768584300000,
+      "tag": "0002_seed_client_order",
+      "breakpoints": true
+    }
+  ]
+}

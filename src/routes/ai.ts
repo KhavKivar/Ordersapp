@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { HumanMessage } from "@langchain/core/messages";
-import { graph } from "../ai/graph/index.js";
+import { runAiIntent } from "../services/ai.js";
 
 export async function aiRoutes(fastify: FastifyInstance) {
   fastify.post("/ai", async (request, reply) => {
@@ -10,13 +9,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ error: "message is required" });
     }
 
-    const respond = await graph.invoke({
-      messages: [new HumanMessage(message)],
-    });
-
-    const last = respond.messages[respond.messages.length - 1];
-    const content = last?.content ?? "";
-    const text = typeof content === "string" ? content : JSON.stringify(content);
+    const text = await runAiIntent(message);
 
     return { message: text };
   });
