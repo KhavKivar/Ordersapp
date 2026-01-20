@@ -1,4 +1,4 @@
-import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { SQL, sql } from "drizzle-orm/sql/sql";
 
 export const productsTable = pgTable("products", {
@@ -11,9 +11,18 @@ export const productsTable = pgTable("products", {
   description: varchar({ length: 1024 }),
 });
 
+export const orderStatusEnum = pgEnum("order_status", [
+  "pending",
+  "paid",
+  "delivered",
+  "delivered_paid",
+  "cancelled",
+]);
+
 export const ordersTable = pgTable("orders", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   client_id: integer().notNull(),
+  status: orderStatusEnum().default("pending").notNull(),
   created_at: timestamp().defaultNow().notNull(),
 });
 

@@ -1,5 +1,5 @@
 <xml>
-<task>Clasifica la intención del usuario en exactamente una etiqueta: list_prices, place_order, register_client, not_related. Responde solo con la etiqueta.</task>
+<task>Clasifica la intención del usuario en exactamente una etiqueta: list_prices, place_order, list_orders, register_client, confirm_order, cancel_order, not_related. Responde solo con la etiqueta.</task>
 <examples country="Chile">
   <example>
     <user>Tienen los precios de los whiskys?</user>
@@ -10,12 +10,32 @@
     <label>place_order</label>
   </example>
   <example>
+    <user>Listar pedidos</user>
+    <label>list_orders</label>
+  </example>
+  <example>
+    <user>Ver mis pedidos</user>
+    <label>list_orders</label>
+  </example>
+  <example>
     <user>Quiero registrarme como cliente</user>
     <label>register_client</label>
   </example>
   <example>
     <user>Nombre Sebastian, local vasvani, direccion Los Alamos 3030</user>
     <label>register_client</label>
+  </example>
+  <example>
+    <user>Confirmar pedido</user>
+    <label>confirm_order</label>
+  </example>
+  <example>
+    <user>Confirmar</user>
+    <label>confirm_order</label>
+  </example>
+  <example>
+    <user>Cancelar pedido</user>
+    <label>cancel_order</label>
   </example>
   <example>
     <user>Hola, cómo estás?</user>

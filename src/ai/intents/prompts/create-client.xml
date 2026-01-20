@@ -20,6 +20,10 @@
     <response>{"name":"Sebastian","localName":"vasvani","address":"Los Alamos 3030"}</response>
   </example>
   <example>
+    <user>mi nombre es sebastian calderon, el local buenos dias, la direccion es los alamos 250</user>
+    <response>{"name":"sebastian calderon","localName":"buenos dias","address":"los alamos 250"}</response>
+  </example>
+  <example>
     <user>Hola</user>
     <response>{"name":"","localName":"","address":""}</response>
   </example>

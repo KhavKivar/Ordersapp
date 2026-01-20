@@ -18,9 +18,12 @@ CREATE TABLE "order_lines" (
 	"line_total" integer GENERATED ALWAYS AS ("price_per_unit" * "quantity") STORED
 );
 --> statement-breakpoint
+CREATE TYPE "order_status" AS ENUM ('pending', 'paid', 'delivered', 'delivered_paid', 'cancelled');
+--> statement-breakpoint
 CREATE TABLE "orders" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "orders_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"client_id" integer NOT NULL,
+	"status" "order_status" DEFAULT 'pending' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

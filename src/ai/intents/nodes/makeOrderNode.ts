@@ -135,6 +135,7 @@ export const makeOrderNode: GraphNode<typeof State> = async (state) => {
       {
         role: "ai",
         content: createMessage,
+        additional_kwargs: { order:  orderCreateDto }
       },
     ],
   };

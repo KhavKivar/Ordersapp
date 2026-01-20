@@ -34,8 +34,17 @@ export const userIntentNode: GraphNode<typeof State> = async (state) => {
     case "place_order":
       intentType = UserIntentType.PLACE_ORDER;
       break;
+    case "list_orders":
+      intentType = UserIntentType.LIST_ORDERS;
+      break;
     case "register_client":
       intentType = UserIntentType.REGISTER_CLIENT;
+      break;
+    case "confirm_order":
+      intentType = UserIntentType.CONFIRM_ORDER;
+      break;
+    case "cancel_order":
+      intentType = UserIntentType.CANCEL_ORDER;
       break;
     default:
       intentType = UserIntentType.NOT_RELATED;
