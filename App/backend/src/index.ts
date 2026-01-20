@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { clientsRoutes } from "./routes/clients.js";
 import { aiRoutes } from "./routes/ai.js";
 import { ordersRoutes } from "./routes/orders.js";
@@ -6,6 +7,10 @@ import { productsRoutes } from "./routes/products.js";
 import { startWhatsApp } from "./whatsapp/client.js";
 
 const fastify = Fastify({ logger: true });
+
+await fastify.register(cors, {
+  origin: ["http://localhost:5173"],
+});
 
 await fastify.register(aiRoutes);
 await fastify.register(productsRoutes);
