@@ -3,9 +3,10 @@ import { GraphNode } from "@langchain/langgraph";
 import { State } from "../../state/schema.js";
 import { ai } from "../../providers/gemini.js";
 import { toMessageText } from "../../utils/message.js";
-import { getClientByPhone, OptionalClient } from "../../../services/clients.js";
+
 import { CreateOrderInput } from "../../../services/orders.js";
 import { listProducts, ProductListItem } from "../../../services/products.js";
+import { getClientByPhoneId, OptionalClient } from "../../../services/clients.js";
 
 const systemInstructionOrder = readFileSync(
   new URL("../prompts/order-parse.xml", import.meta.url),
@@ -37,7 +38,9 @@ export const makeOrderNode: GraphNode<typeof State> = async (state) => {
       ],
     };
   }
-  const clientExist: OptionalClient = await getClientByPhone(sender);
+
+  console.log(`Checking client for sender: ${sender}`);
+  const clientExist: OptionalClient = await getClientByPhoneId(sender);
   if (!clientExist) {
     return {
       messages: [
@@ -81,7 +84,7 @@ export const makeOrderNode: GraphNode<typeof State> = async (state) => {
 
 
   const getAllProduct: ProductListItem[] = await listProducts();
-  const client: OptionalClient = await getClientByPhone(sender);
+  const client: OptionalClient = await getClientByPhoneId(sender);
   if (!client) {
     return {
       messages: [

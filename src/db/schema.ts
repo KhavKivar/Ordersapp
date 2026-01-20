@@ -32,7 +32,8 @@ export const orderLinesTable = pgTable("order_lines", {
 export const clientTable = pgTable("clients", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }),
-  localName: varchar({ length: 255 }), 
+  localName: varchar({ length: 255 }),
   address: varchar({ length: 512 }),
-  phone: varchar({ length: 20 }).unique()
+  phone: varchar({ length: 20 }).unique(),
+  phone_id: varchar({ length: 64 }).unique().notNull(),
 });

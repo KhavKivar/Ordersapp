@@ -3,7 +3,7 @@ import { GraphNode } from "@langchain/langgraph";
 import { State } from "../../state/schema.js";
 import { ai } from "../../providers/gemini.js";
 import { toMessageText } from "../../utils/message.js";
-import { createClient } from "../../../services/clients.js";
+import { findOrCreateClient } from "../../../services/clients.js";
 import {
   getMissingClientFields,
   safeParseClientPayload,
@@ -56,10 +56,9 @@ export const registerClientNode: GraphNode<typeof State> = async (state) => {
     };
   }
 
-  const phoneNumber = messages[0]?.additional_kwargs?.sender as
-    | string
-    | undefined;
-  if (!phoneNumber) {
+  const sender = messages[0]?.additional_kwargs?.sender as string | undefined;
+  const phoneNumber = messages[0]?.additional_kwargs?.phone as string | undefined;
+  if (!sender || !phoneNumber) {
     return {
       messages: [
         {
@@ -69,19 +68,32 @@ export const registerClientNode: GraphNode<typeof State> = async (state) => {
       ],
     };
   }
+ 
 
-  const created = await createClient({
+  const created = await findOrCreateClient({
     name: payload.name?.trim() ?? "",
     localName: payload.localName?.trim() ?? "",
     address: payload.address?.trim() ?? "",
     phone: phoneNumber,
+    phoneId: sender,
   });
+
+  if (!created.isNew) {
+    return {
+      messages: [
+        {
+          role: "ai",
+          content: `Ya estás registrado como cliente: ${created.client.name ?? ""}, nombre del local: ${created.client.localName ?? ""} y telefono ${created.client.phone ?? ""}.`,
+        },
+      ],
+    };
+  }   
 
   return {
     messages: [
       {
         role: "ai",
-        content: `Cliente registrado: ${created.name ?? ""}.`,
+        content: `Cliente registrado: ${created.client.name ?? ""}.`,
       },
     ],
   };

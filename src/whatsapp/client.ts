@@ -41,6 +41,9 @@ export async function startWhatsApp(): Promise<void> {
     if (!msg.message || msg.key.fromMe) return;
    
     const remoteJid = msg.key.remoteJid;
+   
+    const remoteJidAlt = msg.key.remoteJidAlt;
+    const phoneNumber = remoteJidAlt?.split("@")[0];
     if (!remoteJid || remoteJid.endsWith("@g.us")) return;
 
     const text =
@@ -49,10 +52,12 @@ export async function startWhatsApp(): Promise<void> {
       "";
 
     if (!text.trim()) return;
+  
+    console.log("phoneNumber:", phoneNumber);
 
     console.log(`New message from ${remoteJid}:`, text);
     await sock.sendPresenceUpdate("composing", remoteJid);
-    const iaResponse = await runAiIntent(text, remoteJid);
+    const iaResponse = await runAiIntent(text, remoteJid, phoneNumber);
     await sock.sendPresenceUpdate("paused", remoteJid);
 
     await sock.sendMessage(remoteJid, { text: iaResponse });

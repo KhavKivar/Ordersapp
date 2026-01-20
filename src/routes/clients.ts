@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import {
   listClients,
-  createClient,
+  findOrCreateClient,
   deleteClient,
 } from "../services/clients.js";
 
@@ -17,18 +17,24 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       localName?: string;
       address?: string;
       phone?: string;
+      phoneId?: string;
     };
 
     const name = body?.name?.trim();
+    const phoneId = body?.phoneId?.trim();
     if (!name) {
       return reply.status(400).send({ error: "name is required" });
     }
+    if (!phoneId) {
+      return reply.status(400).send({ error: "phoneId is required" });
+    }
 
-    const created = await createClient({
+    const created = await findOrCreateClient({
       name,
       localName: body?.localName,
       address: body?.address,
-      phone: body?.phone,
+      phone: body?.phone ?? "",
+      phoneId,
     });
 
     return { client: created };

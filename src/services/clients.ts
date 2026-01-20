@@ -12,29 +12,60 @@ interface Client {
   localName: string | null;
   address: string | null;
   phone: string | null;
+  phone_id: string;
 }
 export type OptionalClient = Client | null;
 
 
-export async function getClientByPhone(phone: string): Promise<OptionalClient>  {
+interface CreateClientInput {
+  name: string;
+  localName?: string;
+  address?: string;
+  phone: string;
+  phoneId: string;
+}
+
+export async function getClientByPhone(phone: string): Promise<OptionalClient> {
   const client = await db
     .select()
     .from(clientTable)
     .where(eq(clientTable.phone, phone))
     .limit(1);
-  if(client.length===0){
+  if (client.length === 0) {
+    return null;
+  }
+  return client[0];
+}
+
+export async function getClientByPhoneId(
+  phoneId: string
+): Promise<OptionalClient> {
+  console.log("Searching client by phoneId:", phoneId);
+  const client = await db
+    .select()
+    .from(clientTable)
+    .where(eq(clientTable.phone_id, phoneId))
+    .limit(1);
+  if (client.length === 0) {
     return null;
   }
   return client[0];
 }
 
 
-export async function createClient(input: {
-  name: string;
-  localName?: string;
-  address?: string;
-  phone?: string;
-}) {
+export async function findOrCreateClient(
+  input: CreateClientInput
+): Promise<{ client: Client; isNew: boolean }> {
+  const clientAlreadyExist = await db
+    .select()
+    .from(clientTable)
+    .where(eq(clientTable.phone_id, input.phoneId))
+    .limit(1);
+  if (clientAlreadyExist.length > 0) {
+    return { client: clientAlreadyExist[0], isNew: false };
+  }
+
+
   const [created] = await db
     .insert(clientTable)
     .values({
@@ -42,10 +73,11 @@ export async function createClient(input: {
       localName: input.localName,
       address: input.address,
       phone: input.phone,
+      phone_id: input.phoneId,
     })
     .returning();
 
-  return created;
+  return { client: created, isNew: true };
 }
 
 export async function deleteClient(id: number) {
