@@ -1,6 +1,6 @@
 # OrderSapp Bot
 
-OrderSapp is a WhatsApp bot for small stores to share product prices and take simple orders through chat.
+OrderSapp is a WhatsApp bot for small stores to share product prices and take simple orders through chat, integrated with AI and built with LangGraph.
 
 ## Requirements
 - Node.js 18+
