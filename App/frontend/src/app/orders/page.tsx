@@ -42,6 +42,25 @@ const formatCurrency = (value: number) => {
 
 export default function OrdersPage() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  if (!API_BASE_URL) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background text-foreground">
+        <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center justify-center px-6 text-center">
+          <div className="space-y-3 rounded-3xl border border-border bg-card/90 p-8 shadow-lg">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent-foreground">
+              Configuracion requerida
+            </p>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Falta VITE_API_BASE_URL
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Configura la variable de entorno en tu deploy para conectar con la API.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [clientQuery, setClientQuery] = useState("");
   const [clientLocked, setClientLocked] = useState(false);
   const [productQuery, setProductQuery] = useState("");

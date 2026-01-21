@@ -7,7 +7,7 @@ import { productsRoutes } from "./routes/products.js";
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-  origin: ["http://localhost:5173"],
+  origin: true,
 });
 
 await fastify.register(productsRoutes);
