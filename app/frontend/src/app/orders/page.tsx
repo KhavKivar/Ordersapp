@@ -4,22 +4,26 @@ import FormField from "@/components/ui/Form/form_field";
 import Input from "@/components/ui/Input/input";
 import { Spacer } from "@/components/ui/Spacer/spacer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const schema = z.object({
-  clientId: z.number(),
-  items: z.array(
-    z.object({
-      productId: z.number(),
-      pricePerUnit: z.number(),
-      quantity: z.number(),
-    }),
-  ),
-  quantity: z.number(),
+  clientId: z.number("El cliente es obligatorio"),
+  items: z
+    .array(
+      z.object({
+        productId: z.number(),
+        pricePerUnit: z.number(),
+        quantity: z.number(),
+      }),
+      "Debe agregar al menos un producto",
+    )
+    .min(1, "Debe agregar al menos un producto"), // Custom message for array length
+  quantity: z
+    .number("La cantidad debe ser al menos 1")
+    .min(1, "La cantidad debe ser al menos 1"),
 });
 
 type FormFields = z.infer<typeof schema>;
@@ -27,43 +31,43 @@ type FormFields = z.infer<typeof schema>;
 export default function OrdersPage() {
   const {
     register,
-    handleSubmit,
+
     formState: { errors },
   } = useForm<FormFields>({
     resolver: zodResolver(schema),
   });
 
-  const {
-    isPending: productsPending,
-    error: productsError,
-    data: productsData,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => fetch(API_BASE_URL + "/products").then((res) => res.json()),
-  });
+  // const {
+  //   isPending: productsPending,
+  //   error: productsError,
+  //   data: productsData,
+  // } = useQuery({
+  //   queryKey: ["products"],
+  //   queryFn: () => fetch(API_BASE_URL + "/products").then((res) => res.json()),
+  // });
 
-  const {
-    isPending: clientsPending,
-    error: clientsError,
-    data: clientsData,
-  } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => fetch(API_BASE_URL + "/clients").then((res) => res.json()),
-  });
+  // const {
+  //   isPending: clientsPending,
+  //   error: clientsError,
+  //   data: clientsData,
+  // } = useQuery({
+  //   queryKey: ["clients"],
+  //   queryFn: () => fetch(API_BASE_URL + "/clients").then((res) => res.json()),
+  // });
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-  });
+  // const onSubmit = handleSubmit((data) => {
+  //   console.log(data);
+  // });
 
-  if (productsPending || clientsPending) {
-    return <div>Cargando...</div>;
-  }
+  // if (productsPending || clientsPending) {
+  //   return <div>Cargando...</div>;
+  // }
 
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
         <header className="space-y-3">
-          <BackButton className="text-accent-strong" label="Volver" />
+          <BackButton className="text-foreground" label="Volver" />
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent-foreground">
             Crear pedido
           </p>
@@ -136,9 +140,7 @@ export default function OrdersPage() {
                 </span>
               </div>
               <Spacer size={5}></Spacer>
-              <Button onClick={onSubmit} variant={"primary"}>
-                Crear pedido
-              </Button>
+              <Button variant={"primary"}>Crear pedido</Button>
             </div>
           </aside>
         </section>

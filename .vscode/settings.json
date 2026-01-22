@@ -1,5 +1,5 @@
 {
-  "typescript.tsdk": "App/frontend/node_modules/typescript/lib",
+  "typescript.tsdk": "app/frontend/node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
   // ESLint Configuration
