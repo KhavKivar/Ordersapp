@@ -130,3 +130,26 @@ body {
     @apply bg-gradient-to-br from-slate-50 via-amber-50 to-rose-50 text-slate-900;
   }
 }
+
+@keyframes toast-auto-hide {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.toast-auto-hide {
+  animation: toast-auto-hide 3s ease forwards;
+}

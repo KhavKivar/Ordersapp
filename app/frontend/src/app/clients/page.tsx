@@ -3,17 +3,12 @@ import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
 import FormField from "@/components/ui/Form/form_field";
 import Input from "@/components/ui/Input/input";
+import { clientSchema, type Client } from "@/features/client/api/client.schema";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-const schema = z.object({
-  name: z.string().nonempty("El nombre es obligatorio"),
-  localName: z.string().nonempty("El nombre del local es obligatorio"),
-  address: z.string().nonempty("La direccion es obligatoria"),
-  phone: z.string().min(5, "El telefono debe tener al menos 5 caracteres"),
-});
 
-type FormFields = z.infer<typeof schema>;
+type FormFields = Client;
 
 export default function NewClientPage() {
   const {
@@ -21,7 +16,7 @@ export default function NewClientPage() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(clientSchema),
   });
   const onSubmit: SubmitHandler<FormFields> = (data) => {
     console.log(data);

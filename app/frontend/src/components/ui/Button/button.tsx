@@ -1,5 +1,5 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
+import * as React from "react";
 
 import {
   buttonVariants,
@@ -24,7 +24,10 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(
+        "cursor-pointer",
+        buttonVariants({ variant, size, className }),
+      )}
       {...props}
     />
   );
