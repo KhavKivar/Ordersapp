@@ -77,6 +77,10 @@ export default function OrdersPage() {
     queryFn: () => fetch(API_BASE_URL + "/clients").then((res) => res.json()),
   });
 
+  const isLoadingData = isPending || productsPending;
+  const isErrorData = error || productsError;
+  const isSuccessData = data || productsData;
+
   const [selectClient, setSelectClient] = useState<Client | null>(null);
   const [isClientOpen, setClientOpen] = useState(false);
 
@@ -176,9 +180,9 @@ export default function OrdersPage() {
             Nuevo pedido manual
           </h1>
         </header>
-        {isPending && <div>Cargando...</div>}
-        {error && <div>Error al cargar los clientes</div>}
-        {data && !isPending && !error && (
+        {isLoadingData && <div>Cargando...</div>}
+        {isErrorData && <div>Error al cargar los clientes</div>}
+        {isSuccessData && !isLoadingData && !isErrorData && (
           <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <form onSubmit={onSubmit}>
               <div className="space-y-6">
