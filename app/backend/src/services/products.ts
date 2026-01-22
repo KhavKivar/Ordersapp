@@ -1,26 +1,18 @@
 import { db } from "../db/index.js";
-import { productsTable } from "../db/schema.js";
+import { products } from "../db/schema.js";
 
-export interface ProductListItem {
-  id: number;
-  name: string;
-  type: string;
-  sizeMl: number | null;
-  sellPriceClient: number;
-  buyPriceSupplier: number;
-  description: string | null;
-}
+type Product = typeof products.$inferSelect;
 
-export async function listProducts(): Promise<ProductListItem[]> {
+export async function listProducts(): Promise<Product[]> {
   return db
     .select({
-      id: productsTable.id,
-      name: productsTable.name,
-      type: productsTable.type,
-      sizeMl: productsTable.size_ml,
-      sellPriceClient: productsTable.sell_price_client,
-      buyPriceSupplier: productsTable.buy_price_supplier,
-      description: productsTable.description,
+      id: products.id,
+      name: products.name,
+      type: products.type,
+      sizeMl: products.sizeMl,
+      sellPriceClient: products.sellPriceClient,
+      buyPriceSupplier: products.buyPriceSupplier,
+      description: products.description,
     })
-    .from(productsTable);
+    .from(products);
 }

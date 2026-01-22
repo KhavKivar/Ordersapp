@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { clients, orderLines, orders, products } from "../db/schema.js";
+import { products, purchaseOrderLines, purchaseOrders } from "../db/schema.js";
 
 export interface OrderLineItem {
   lineId: number;
   productId: number;
-  pricePerUnit: number;
+  buyPriceSupplier: number;
   quantity: number;
   lineTotal: number | null;
   productName: string | null;
@@ -14,39 +14,36 @@ export interface OrderLineItem {
 export interface OrderListItem {
   orderId: number;
   createdAt: string;
-  clientName: string | null;
-  phone: string | null;
   lines: OrderLineItem[];
 }
 
 interface itemInput {
   productId: number;
-  pricePerUnit: number;
+  buyPriceSupplier: number;
   quantity: number;
 }
 export interface CreateOrderInput {
-  clientId: number;
   items: itemInput[];
 }
 
-export async function listOrders(): Promise<OrderListItem[]> {
+export async function listPurchaseOrders(): Promise<OrderListItem[]> {
   const rows = await db
     .select({
-      createdAt: orders.createdAt,
-      orderId: orders.id,
-      lineId: orderLines.id,
-      productId: orderLines.productId,
-      pricePerUnit: orderLines.pricePerUnit,
-      quantity: orderLines.quantity,
-      lineTotal: orderLines.lineTotal,
-      clientName: clients.name,
-      phone: clients.phone,
+      createdAt: purchaseOrders.createdAt,
+      orderId: purchaseOrders.id,
+      lineId: purchaseOrderLines.id,
+      productId: purchaseOrderLines.productId,
+      buyPriceSupplier: purchaseOrderLines.buyPrice,
+      quantity: purchaseOrderLines.quantity,
+      lineTotal: purchaseOrderLines.lineTotal,
       productName: products.name,
     })
-    .from(orders)
-    .innerJoin(clients, eq(orders.clientId, clients.id))
-    .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
-    .leftJoin(products, eq(orderLines.productId, products.id));
+    .from(purchaseOrders)
+    .innerJoin(
+      purchaseOrderLines,
+      eq(purchaseOrderLines.purchaseOrderId, purchaseOrders.id),
+    )
+    .leftJoin(products, eq(purchaseOrderLines.productId, products.id));
 
   const ordersMap = new Map<number, OrderListItem>();
 
@@ -56,8 +53,6 @@ export async function listOrders(): Promise<OrderListItem[]> {
       order = {
         orderId: row.orderId,
         createdAt: row.createdAt,
-        clientName: row.clientName,
-        phone: row.phone,
         lines: [],
       };
       ordersMap.set(row.orderId, order);
@@ -66,7 +61,7 @@ export async function listOrders(): Promise<OrderListItem[]> {
     order.lines.push({
       lineId: row.lineId,
       productId: row.productId,
-      pricePerUnit: row.pricePerUnit,
+      buyPriceSupplier: row.buyPriceSupplier,
       quantity: row.quantity,
       lineTotal: row.lineTotal,
       productName: row.productName,
@@ -76,34 +71,20 @@ export async function listOrders(): Promise<OrderListItem[]> {
   return Array.from(ordersMap.values());
 }
 
-export async function createOrder(input: CreateOrderInput) {
-  const [createdOrder] = await db
-    .insert(orders)
-    .values({
-      clientId: input.clientId,
-    })
-    .returning();
+export async function createPurchaseOrder(input: CreateOrderInput) {
+  const [createdOrder] = await db.insert(purchaseOrders).values({}).returning();
 
   const itemsToInsert = input.items.map((item) => ({
-    orderId: createdOrder.id,
+    purchaseOrderId: createdOrder.id,
     productId: item.productId,
-    pricePerUnit: item.pricePerUnit,
+    buyPrice: item.buyPriceSupplier,
     quantity: item.quantity,
   }));
 
   const createdLines = await db
-    .insert(orderLines)
+    .insert(purchaseOrderLines)
     .values(itemsToInsert)
     .returning();
 
   return { order: createdOrder, lines: createdLines };
-}
-
-export async function deleteOrder(id: number) {
-  const [deleted] = await db
-    .delete(orders)
-    .where(eq(orders.id, id))
-    .returning();
-
-  return deleted;
 }

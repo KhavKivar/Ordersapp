@@ -10,6 +10,7 @@
     "dev": "tsx watch src/index.ts",
     "drizzle:generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
+    "pull": "npx drizzle-kit pull",
     "reset": "docker compose down -v && docker compose up -d && drizzle-kit migrate"
   },
   "devDependencies": {

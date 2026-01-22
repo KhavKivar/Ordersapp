@@ -1,21 +1,10 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { clientTable } from "../db/schema.js";
+import { clients } from "../db/schema.js";
 
-export async function listClients() {
-  return db.select().from(clientTable);
-}
+type Client = typeof clients.$inferSelect;
 
-interface Client {
-  id: number;
-  name: string | null;
-  localName: string | null;
-  address: string | null;
-  phone: string | null;
-  phone_id: string;
-}
 export type OptionalClient = Client | null;
-
 
 interface CreateClientInput {
   name: string;
@@ -25,55 +14,51 @@ interface CreateClientInput {
   phoneId: string;
 }
 
+export async function listClients() {
+  return db.select().from(clients);
+}
+
 export async function getClientByPhone(phone: string): Promise<OptionalClient> {
   const client = await db
     .select()
-    .from(clientTable)
-    .where(eq(clientTable.phone, phone))
+    .from(clients)
+    .where(eq(clients.phone, phone))
     .limit(1);
-  if (client.length === 0) {
-    return null;
-  }
-  return client[0];
+  return client[0] || null;
 }
 
 export async function getClientByPhoneId(
-  phoneId: string
+  phoneId: string,
 ): Promise<OptionalClient> {
   console.log("Searching client by phoneId:", phoneId);
   const client = await db
     .select()
-    .from(clientTable)
-    .where(eq(clientTable.phone_id, phoneId))
+    .from(clients)
+    .where(eq(clients.phoneId, phoneId))
     .limit(1);
-  if (client.length === 0) {
-    return null;
-  }
-  return client[0];
+  return client[0] || null;
 }
 
-
 export async function findOrCreateClient(
-  input: CreateClientInput
+  input: CreateClientInput,
 ): Promise<{ client: Client; isNew: boolean }> {
   const clientAlreadyExist = await db
     .select()
-    .from(clientTable)
-    .where(eq(clientTable.phone_id, input.phoneId))
+    .from(clients)
+    .where(eq(clients.phoneId, input.phoneId))
     .limit(1);
   if (clientAlreadyExist.length > 0) {
     return { client: clientAlreadyExist[0], isNew: false };
   }
 
-
   const [created] = await db
-    .insert(clientTable)
+    .insert(clients)
     .values({
       name: input.name,
       localName: input.localName,
       address: input.address,
       phone: input.phone,
-      phone_id: input.phoneId,
+      phoneId: input.phoneId,
     })
     .returning();
 
@@ -82,8 +67,8 @@ export async function findOrCreateClient(
 
 export async function deleteClient(id: number) {
   const [deleted] = await db
-    .delete(clientTable)
-    .where(eq(clientTable.id, id))
+    .delete(clients)
+    .where(eq(clients.id, id))
     .returning();
 
   return deleted;
