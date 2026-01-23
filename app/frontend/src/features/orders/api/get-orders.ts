@@ -6,6 +6,7 @@ export type OrderLine = {
   quantity: number;
   lineTotal: number | null;
   productName: string | null;
+  buyPriceSupplier: number;
 };
 
 export type OrderListItem = {

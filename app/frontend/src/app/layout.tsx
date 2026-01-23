@@ -16,6 +16,21 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const navbarConfig = useMemo<NavbarConfig>(() => {
+    if (
+      location.pathname.startsWith("/orders/") &&
+      location.pathname.endsWith("/edit")
+    ) {
+      return {
+        title: "Editar pedido",
+        showBack: true,
+      };
+    }
+    if (location.pathname.startsWith("/orders/")) {
+      return {
+        title: "Detalle del pedido",
+        showBack: true,
+      };
+    }
     switch (location.pathname) {
       case "/orders":
         return {
@@ -27,9 +42,24 @@ export default function Layout() {
           title: "Nuevo pedido manual",
           showBack: true,
         };
+      case "/purchase-orders":
+        return {
+          title: "Orden de compra",
+          showBack: true,
+        };
+      case "/purchase-orders/list":
+        return {
+          title: "Ordenes de compra",
+          showBack: true,
+        };
       case "/clients/new":
         return {
           title: "Nuevo cliente",
+          showBack: true,
+        };
+      case "/purchase-orders/new":
+        return {
+          title: "Nueva orden de compra",
           showBack: true,
         };
       default:

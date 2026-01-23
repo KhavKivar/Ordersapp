@@ -6,6 +6,7 @@ export interface OrderLineItem {
   lineId: number;
   productId: number;
   pricePerUnit: number;
+  buyPriceSupplier: number;
   quantity: number;
   lineTotal: number | null;
   productName: string | null;
@@ -42,6 +43,7 @@ export async function listOrders(): Promise<OrderListItem[]> {
       clientName: clients.name,
       phone: clients.phone,
       productName: products.name,
+      buyPriceSupplier: products.buyPriceSupplier,
     })
     .from(orders)
     .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -70,6 +72,7 @@ export async function listOrders(): Promise<OrderListItem[]> {
       quantity: row.quantity,
       lineTotal: row.lineTotal,
       productName: row.productName,
+      buyPriceSupplier: row.buyPriceSupplier ?? 0,
     });
   }
 

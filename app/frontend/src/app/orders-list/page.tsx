@@ -1,23 +1,27 @@
+import { Button } from "@/components/ui/Button/button";
 import { FloatingButton } from "@/components/ui/FloatingButton/floatingButton";
 import OrderCard from "@/features/components/OrderCard";
-import { deleteOrder } from "@/features/orders/api/delete-order";
 import { getOrders } from "@/features/orders/api/get-orders";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+
+import { useAppSelector } from "@/hooks/redux.hooks";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
+import {
+  addSelectedPurchaseOrder,
+  removeSelectedPurchaseOrder,
+  selectedPurchaseOrder,
+} from "../purchaseOrderSlice";
 
 export default function OrdersListPage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
   const { data, isPending, error } = useQuery({
     queryKey: ["orders"],
     queryFn: getOrders,
   });
-  const { mutate: removeOrder, isPending: removePending } = useMutation({
-    mutationFn: deleteOrder,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-    },
-  });
+  const dispatch = useDispatch();
+  const choosingOrder = useAppSelector(selectedPurchaseOrder);
 
   return (
     <div className="min-h-screen">
@@ -25,6 +29,20 @@ export default function OrdersListPage() {
         <p className="max-w-2xl text-base text-muted-foreground">
           Revisa los pedidos creados, su estado y el detalle de productos.
         </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            variant="primary"
+            onClick={() => navigate("/purchase-orders")}
+          >
+            {`Crear orden de compra${
+              choosingOrder.length > 0 ? ` (${choosingOrder.length})` : ""
+            }`}
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/purchase-orders/list")}>
+            Ver ordenes de compra
+          </Button>
+        </div>
+
         <section className="space-y-4">
           <div className="grid gap-4">
             {isPending && <div>Cargando...</div>}
@@ -41,7 +59,16 @@ export default function OrdersListPage() {
                   quantity: item.quantity,
                   pricePerUnit: item.pricePerUnit,
                 }))}
-                onDelete={removePending ? undefined : removeOrder}
+                isSelected={choosingOrder.includes(order)}
+                onEdit={(orderId) => navigate(`/orders/${orderId}/edit`)}
+                onClick={() => {
+                  //First check if the order is already in the list
+                  if (choosingOrder.includes(order)) {
+                    dispatch(removeSelectedPurchaseOrder(order));
+                    return;
+                  }
+                  dispatch(addSelectedPurchaseOrder(order));
+                }}
               />
             ))}
           </div>

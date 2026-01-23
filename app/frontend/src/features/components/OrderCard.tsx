@@ -1,14 +1,5 @@
-import { Button } from "@/components/ui/Button/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Pencil } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { formatChileanPeso } from "@/utils/format-currency";
 
 type OrderLine = {
@@ -24,7 +15,9 @@ type OrderCardProps = {
   status: "pending" | "paid" | "delivered" | "delivered_paid" | "cancelled";
   createdAt: string;
   items: OrderLine[];
-  onDelete?: (orderId: number) => void;
+  onEdit?: (orderId: number) => void;
+  onClick?: () => void;
+  isSelected: boolean;
 };
 
 const STATUS_LABELS: Record<OrderCardProps["status"], string> = {
@@ -50,7 +43,9 @@ export default function OrderCard({
   status,
   createdAt,
   items,
-  onDelete,
+  onEdit,
+  onClick,
+  isSelected,
 }: OrderCardProps) {
   const total = items.reduce(
     (sum, item) => sum + item.pricePerUnit * item.quantity,
@@ -58,7 +53,15 @@ export default function OrderCard({
   );
 
   return (
-    <article className="rounded-3xl border border-border/70 bg-card/90 p-6 shadow-sm">
+    <article
+      onClick={onClick}
+      className={cn(
+        "rounded-3xl border border-border/70 bg-card/90 p-6 shadow-sm transition-all",
+        isSelected
+          ? "border-emerald-400 bg-emerald-50 shadow-md ring-2 ring-emerald-200"
+          : "hover:border-border hover:bg-card",
+      )}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -108,33 +111,18 @@ export default function OrderCard({
           })}
         </span>
         <div className="flex items-center gap-3">
-          {onDelete && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="min-h-11 rounded-full border border-rose-200 px-4 text-xs font-semibold text-rose-600 transition-colors hover:border-rose-300 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200"
-                >
-                  Eliminar
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Eliminar pedido</DialogTitle>
-                  <DialogDescription>
-                    ¿Estas seguro de eliminar este pedido?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <DialogClose>Cancelar</DialogClose>
-                  <DialogClose asChild>
-                    <Button variant="destructive" onClick={() => onDelete(id)}>
-                      Eliminar
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+          {onEdit && (
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(id);
+              }}
+              aria-label="Editar pedido"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
           )}
           <span className="text-base font-semibold text-foreground">
             {formatChileanPeso(total)}
