@@ -4,7 +4,7 @@ import ClientCreatePage from "./client/new/page";
 import ClientListPage from "./client/page";
 import Home from "./home/page";
 import Layout from "./layout";
-import OrderDetailPage from "./order/detail/page";
+
 import OrderEditPage from "./order/edit/page";
 import OrderCreatePage from "./order/new/page";
 import OrderListPage from "./order/page";
@@ -26,7 +26,7 @@ function App() {
           <Route path="/order" element={<OrderListPage />} />
           <Route path="/order/new" element={<OrderCreatePage />} />
           <Route path="/order/:id/edit" element={<OrderEditPage />} />
-          <Route path="/order/:id" element={<OrderDetailPage />} />
+
           <Route path="/client" element={<ClientListPage />} />
           <Route path="/client/new" element={<ClientCreatePage />} />
           <Route path="/purchase-order" element={<PurchaseOrderListPage />} />
@@ -34,7 +34,10 @@ function App() {
             path="/purchase-order/:id"
             element={<PurchaseOrderDetailPage />}
           />
-          <Route path="/purchase-order/new" element={<PurchaseOrderNewLayout />}>
+          <Route
+            path="/purchase-order/new"
+            element={<PurchaseOrderNewLayout />}
+          >
             <Route index element={<Navigate to="select" replace />} />
             <Route path="select" element={<PurchaseOrderSelectPage />} />
             <Route path="summary" element={<PurchaseOrderSummaryPage />} />

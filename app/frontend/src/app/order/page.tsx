@@ -22,7 +22,7 @@ export default function OrdersListPage() {
   const deleteMutation = useMutation({
     mutationFn: (payload: { orderId: number; order: OrderListItem }) =>
       deleteOrder(payload.orderId),
-    onSuccess: (_response, payload) => {
+    onSuccess: () => {
       toast.success("Pedido eliminado");
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
