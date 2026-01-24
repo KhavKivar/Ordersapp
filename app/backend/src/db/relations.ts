@@ -1,27 +1,46 @@
 import { relations } from "drizzle-orm/relations";
-import { products, purchaseOrderLines, purchaseOrders } from "./schema.js";
+import {
+  clients,
+  orderLines,
+  orders,
+  products,
+  purchaseOrders,
+} from "./schema.js";
 
-export const purchaseOrderLinesRelations = relations(
-  purchaseOrderLines,
-  ({ one }) => ({
-    purchaseOrder: one(purchaseOrders, {
-      fields: [purchaseOrderLines.purchaseOrderId],
-      references: [purchaseOrders.id],
-    }),
-    product: one(products, {
-      fields: [purchaseOrderLines.productId],
-      references: [products.id],
-    }),
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  client: one(clients, {
+    fields: [orders.clientId],
+    references: [clients.id],
   }),
-);
+  purchaseOrder: one(purchaseOrders, {
+    fields: [orders.purchaseOrderId],
+    references: [purchaseOrders.id],
+  }),
+  orderLines: many(orderLines),
+}));
+
+export const clientsRelations = relations(clients, ({ many }) => ({
+  orders: many(orders),
+}));
 
 export const purchaseOrdersRelations = relations(
   purchaseOrders,
   ({ many }) => ({
-    purchaseOrderLines: many(purchaseOrderLines),
+    orders: many(orders),
   }),
 );
 
+export const orderLinesRelations = relations(orderLines, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderLines.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderLines.productId],
+    references: [products.id],
+  }),
+}));
+
 export const productsRelations = relations(products, ({ many }) => ({
-  purchaseOrderLines: many(purchaseOrderLines),
+  orderLines: many(orderLines),
 }));

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+
 import { db } from "../db/index.js";
 import { clients, orderLines, orders, products } from "../db/schema.js";
 
@@ -15,7 +16,8 @@ export interface OrderLineItem {
 export interface OrderListItem {
   orderId: number;
   createdAt: string;
-  clientName: string | null;
+  clientId: number;
+  localName: string | null;
   phone: string | null;
   lines: OrderLineItem[];
 }
@@ -35,12 +37,13 @@ export async function listOrders(): Promise<OrderListItem[]> {
     .select({
       createdAt: orders.createdAt,
       orderId: orders.id,
+      clientId: orders.clientId,
+      localName: clients.localName,
       lineId: orderLines.id,
       productId: orderLines.productId,
       pricePerUnit: orderLines.pricePerUnit,
       quantity: orderLines.quantity,
       lineTotal: orderLines.lineTotal,
-      clientName: clients.name,
       phone: clients.phone,
       productName: products.name,
       buyPriceSupplier: products.buyPriceSupplier,
@@ -58,7 +61,8 @@ export async function listOrders(): Promise<OrderListItem[]> {
       order = {
         orderId: row.orderId,
         createdAt: row.createdAt,
-        clientName: row.clientName,
+        clientId: row.clientId,
+        localName: row.localName,
         phone: row.phone,
         lines: [],
       };
@@ -77,6 +81,62 @@ export async function listOrders(): Promise<OrderListItem[]> {
   }
 
   return Array.from(ordersMap.values());
+}
+
+export async function getOrderById(id: number): Promise<OrderListItem | null> {
+  const rows = await db
+    .select({
+      createdAt: orders.createdAt,
+      orderId: orders.id,
+      clientId: orders.clientId,
+      localName: clients.localName,
+      lineId: orderLines.id,
+      productId: orderLines.productId,
+      pricePerUnit: orderLines.pricePerUnit,
+      quantity: orderLines.quantity,
+      lineTotal: orderLines.lineTotal,
+      phone: clients.phone,
+      productName: products.name,
+      buyPriceSupplier: products.buyPriceSupplier,
+    })
+    .from(orders)
+    .innerJoin(clients, eq(orders.clientId, clients.id))
+    .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
+    .leftJoin(products, eq(orderLines.productId, products.id))
+    .where(eq(orders.id, id));
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  const ordersMap = new Map<number, OrderListItem>();
+
+  for (const row of rows) {
+    let order = ordersMap.get(row.orderId);
+    if (!order) {
+      order = {
+        orderId: row.orderId,
+        createdAt: row.createdAt,
+        clientId: row.clientId,
+        localName: row.localName,
+        phone: row.phone,
+        lines: [],
+      };
+      ordersMap.set(row.orderId, order);
+    }
+
+    order.lines.push({
+      lineId: row.lineId,
+      productId: row.productId,
+      pricePerUnit: row.pricePerUnit,
+      quantity: row.quantity,
+      lineTotal: row.lineTotal,
+      productName: row.productName,
+      buyPriceSupplier: row.buyPriceSupplier ?? 0,
+    });
+  }
+
+  return ordersMap.get(id) ?? null;
 }
 
 export async function createOrder(input: CreateOrderInput) {
@@ -100,6 +160,36 @@ export async function createOrder(input: CreateOrderInput) {
     .returning();
 
   return { order: createdOrder, lines: createdLines };
+}
+
+export async function updateOrder(id: number, input: CreateOrderInput) {
+  const [updatedOrder] = await db
+    .update(orders)
+    .set({
+      clientId: input.clientId,
+    })
+    .where(eq(orders.id, id))
+    .returning();
+
+  if (!updatedOrder) {
+    return null;
+  }
+
+  await db.delete(orderLines).where(eq(orderLines.orderId, id));
+
+  const itemsToInsert = input.items.map((item) => ({
+    orderId: updatedOrder.id,
+    productId: item.productId,
+    pricePerUnit: item.pricePerUnit,
+    quantity: item.quantity,
+  }));
+
+  const updatedLines = await db
+    .insert(orderLines)
+    .values(itemsToInsert)
+    .returning();
+
+  return { order: updatedOrder, lines: updatedLines };
 }
 
 export async function deleteOrder(id: number) {

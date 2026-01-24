@@ -1,20 +1,12 @@
 import API_BASE_URL from "@/config/api";
 
 interface PurchaseOrderCreateDTO {
-  items: {
-    productId: number;
-    quantity: number;
-    buyPriceSupplier: number;
-  }[];
+  orderListIds: number[];
 }
 
 export const createPurchaseOrder = async (payload: PurchaseOrderCreateDTO) => {
   const requestBody = {
-    items: payload.items.map((item) => ({
-      product_id: item.productId,
-      quantity: item.quantity,
-      buy_price_supplier: item.buyPriceSupplier,
-    })),
+    orderListIds: payload.orderListIds,
   };
 
   const res = await fetch(`${API_BASE_URL}/purchase_orders`, {

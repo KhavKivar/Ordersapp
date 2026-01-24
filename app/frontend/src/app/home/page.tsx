@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/Button/button";
-import { Card } from "@/components/ui/Card/card";
-import { Spacer } from "@/components/ui/Spacer/spacer";
 import { CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+
+import { Button } from "@/components/ui/Button/button";
+import { Card } from "@/components/ui/Card/card";
+import { Spacer } from "@/components/ui/Spacer/spacer";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -38,21 +39,27 @@ export default function Home() {
             Acciones rapidas
           </p>
           <h2 className="mt-3 text-lg font-semibold text-foreground">
-            Agregar cliente
+            Accede rapido
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Crea un nuevo cliente para usarlo en los pedidos manuales.
+            Gestiona pedidos, clientes y ordenes de compra desde aqui.
           </p>
           <Spacer />
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button variant="outline" onClick={() => navigate("/order")}>
+              Pedidos
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/client")}>
+              Clientes
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/stats")}>
+              Estadísticas
+            </Button>
             <Button
               variant={"primary"}
-              onClick={() => navigate("/clients/new")}
+              onClick={() => navigate("/purchase-order")}
             >
-              Crear Cliente
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/orders")}>
-              Ver pedidos
+              Compras
             </Button>
           </div>
         </Card>

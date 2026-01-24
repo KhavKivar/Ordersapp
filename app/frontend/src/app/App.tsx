@@ -1,14 +1,19 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Route, Routes } from "react-router";
-import NewClientPage from "./clients/page";
+import { Navigate, Route, Routes } from "react-router";
+import ClientCreatePage from "./client/new/page";
+import ClientListPage from "./client/page";
 import Home from "./home/page";
 import Layout from "./layout";
-import OrdersListPage from "./orders-list/page";
-import OrdersPage from "./orders/page";
-import OrdersEditPage from "./orders-edit/page";
-import OrderDetailPage from "./orders-detail/page";
-import PurchaseOrdersPage from "./purchase-orders/page";
-import PurchaseOrdersListPage from "./purchase-orders-list/page";
+import OrderDetailPage from "./order/detail/page";
+import OrderEditPage from "./order/edit/page";
+import OrderCreatePage from "./order/new/page";
+import OrderListPage from "./order/page";
+import PurchaseOrderDetailPage from "./purchase-order/detail/page";
+import PurchaseOrderNewLayout from "./purchase-order/new/page";
+import PurchaseOrderSelectPage from "./purchase-order/new/select/page";
+import PurchaseOrderSummaryPage from "./purchase-order/new/summary/page";
+import PurchaseOrderListPage from "./purchase-order/page";
+import StatsPage from "./stats/page";
 
 const queryClient = new QueryClient();
 function App() {
@@ -17,16 +22,23 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/orders" element={<OrdersListPage />} />
-          <Route path="/orders/new" element={<OrdersPage />} />
-          <Route path="/orders/:id/edit" element={<OrdersEditPage />} />
-          <Route path="/orders/:id" element={<OrderDetailPage />} />
-          <Route path="/clients/new" element={<NewClientPage />} />
-          <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/order" element={<OrderListPage />} />
+          <Route path="/order/new" element={<OrderCreatePage />} />
+          <Route path="/order/:id/edit" element={<OrderEditPage />} />
+          <Route path="/order/:id" element={<OrderDetailPage />} />
+          <Route path="/client" element={<ClientListPage />} />
+          <Route path="/client/new" element={<ClientCreatePage />} />
+          <Route path="/purchase-order" element={<PurchaseOrderListPage />} />
           <Route
-            path="/purchase-orders/list"
-            element={<PurchaseOrdersListPage />}
+            path="/purchase-order/:id"
+            element={<PurchaseOrderDetailPage />}
           />
+          <Route path="/purchase-order/new" element={<PurchaseOrderNewLayout />}>
+            <Route index element={<Navigate to="select" replace />} />
+            <Route path="select" element={<PurchaseOrderSelectPage />} />
+            <Route path="summary" element={<PurchaseOrderSummaryPage />} />
+          </Route>
         </Route>
       </Routes>
     </QueryClientProvider>

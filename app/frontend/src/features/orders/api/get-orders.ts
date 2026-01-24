@@ -12,7 +12,7 @@ export type OrderLine = {
 export type OrderListItem = {
   orderId: number;
   createdAt: string;
-  clientName: string | null;
+  localName: string | null;
   phone: string | null;
   lines: OrderLine[];
 };

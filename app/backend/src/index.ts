@@ -5,6 +5,7 @@ import { sayHello } from "./routes/hello.js";
 import { ordersRoutes } from "./routes/orders.js";
 import { productsRoutes } from "./routes/products.js";
 import { purchaseOrdersRoutes } from "./routes/purchase_orders.js";
+import { revenueRoutes } from "./routes/revenue.js";
 
 const fastify = Fastify({ logger: true });
 
@@ -25,6 +26,7 @@ await fastify.register(ordersRoutes);
 await fastify.register(clientsRoutes);
 await fastify.register(sayHello);
 await fastify.register(purchaseOrdersRoutes);
+await fastify.register(revenueRoutes);
 
 const port = Number(process.env.PORT || 3000);
 await fastify.listen({ port, host: "0.0.0.0" });

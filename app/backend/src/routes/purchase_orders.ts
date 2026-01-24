@@ -1,7 +1,10 @@
 import { FastifyInstance } from "fastify";
 import {
   createPurchaseOrder,
+  deletePurchaseOrder,
+  getPurchaseOrderById,
   listPurchaseOrders,
+  updatePurchaseOrder,
 } from "../services/purchase_orders.js";
 
 export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
@@ -10,47 +13,79 @@ export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
     return { orders };
   });
 
-  fastify.post("/purchase_orders", async (request, reply) => {
-    const body = request.body as {
-      items?: Array<{
-        product_id?: number;
-        buy_price_supplier?: number;
-        quantity?: number;
-      }>;
-    };
-
-    const items = body?.items ?? [];
-
-    if (items.length === 0) {
-      return reply.status(400).send({
-        error: "items are required",
-      });
+  fastify.get("/purchase_orders/:id", async (request, reply) => {
+    const id = Number((request.params as { id?: string }).id);
+    if (!id) {
+      return reply.status(400).send({ error: "id is required" });
     }
 
-    const normalizedItems: Array<{
-      productId: number;
-      buyPriceSupplier: number;
-      quantity: number;
-    }> = [];
-    for (const item of items) {
-      if (!item.product_id || !item.buy_price_supplier || !item.quantity) {
-        return reply.status(400).send({
-          error:
-            "Each item needs product_id, buy_price_supplier, quantity with values greater than 0",
-        });
+    try {
+      const purchaseOrder = await getPurchaseOrderById(id);
+      if (!purchaseOrder) {
+        return reply.status(404).send({ error: "purchase order not found" });
       }
 
-      normalizedItems.push({
-        productId: item.product_id,
-        buyPriceSupplier: item.buy_price_supplier,
-        quantity: item.quantity,
+      return { purchaseOrder };
+    } catch (error) {
+      request.log.error(
+        { err: error },
+        "failed to fetch purchase order detail",
+      );
+      return reply
+        .status(500)
+        .send({ error: "failed to fetch purchase order" });
+    }
+  });
+
+  fastify.post("/purchase_orders", async (request, reply) => {
+    const body = request.body as {
+      orderListIds?: Array<number>;
+    };
+    const orderListIds = body?.orderListIds ?? [];
+    if (orderListIds.length === 0) {
+      return reply.status(400).send({
+        error: "orderListIds are required",
       });
     }
 
     const created = await createPurchaseOrder({
-      items: normalizedItems,
+      orderListIds,
     });
 
     return created;
+  });
+  fastify.patch("/purchase_orders/:id", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const body = request.body as { orderListIds?: number[] };
+
+    const purchaseOrderId = Number(id);
+    const orderListIds = body?.orderListIds ?? [];
+
+    if (isNaN(purchaseOrderId)) {
+      return reply.status(400).send({ error: "Invalid ID" });
+    }
+
+    try {
+      const updated = await updatePurchaseOrder(purchaseOrderId, {
+        orderListIds,
+      });
+      return updated;
+    } catch (error: any) {
+      return reply.status(500).send({ error: error.message });
+    }
+  });
+
+  fastify.delete("/purchase_orders/:id", async (request, reply) => {
+    const id = Number((request.params as { id?: string }).id);
+    if (!id) {
+      return reply.status(400).send({ error: "id is required" });
+    }
+
+    const deleted = await deletePurchaseOrder(id);
+    if (!deleted) {
+      return reply.status(404).send({ error: "purchase order not found" });
+    }
+
+    return { order: deleted };
   });
 }

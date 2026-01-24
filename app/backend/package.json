@@ -11,6 +11,7 @@
     "drizzle:generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "pull": "npx drizzle-kit pull",
+    "generate-migration": "npx drizzle-kit generate --custom --name",
     "reset": "docker compose down -v && docker compose up -d && drizzle-kit migrate"
   },
   "devDependencies": {

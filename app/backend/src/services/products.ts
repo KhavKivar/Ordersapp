@@ -13,6 +13,7 @@ export async function listProducts(): Promise<Product[]> {
       sellPriceClient: products.sellPriceClient,
       buyPriceSupplier: products.buyPriceSupplier,
       description: products.description,
+      batchSize: products.batchSize,
     })
     .from(products);
 }

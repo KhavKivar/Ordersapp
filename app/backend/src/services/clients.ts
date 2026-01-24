@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+
 import { db } from "../db/index.js";
 import { clients } from "../db/schema.js";
 
@@ -7,11 +8,17 @@ type Client = typeof clients.$inferSelect;
 export type OptionalClient = Client | null;
 
 interface CreateClientInput {
-  name: string;
   localName?: string;
   address?: string;
   phone: string;
   phoneId: string;
+}
+
+interface UpdateClientInput {
+  localName?: string;
+  address?: string;
+  phone?: string;
+  phoneId?: string;
 }
 
 export async function listClients() {
@@ -54,7 +61,6 @@ export async function findOrCreateClient(
   const [created] = await db
     .insert(clients)
     .values({
-      name: input.name,
       localName: input.localName,
       address: input.address,
       phone: input.phone,
@@ -72,4 +78,29 @@ export async function deleteClient(id: number) {
     .returning();
 
   return deleted;
+}
+
+export async function updateClient(id: number, input: UpdateClientInput) {
+  const updates: Partial<typeof clients.$inferInsert> = {};
+
+  if (input.localName !== undefined) {
+    updates.localName = input.localName;
+  }
+  if (input.address !== undefined) {
+    updates.address = input.address;
+  }
+  if (input.phone !== undefined) {
+    updates.phone = input.phone;
+  }
+  if (input.phoneId !== undefined) {
+    updates.phoneId = input.phoneId;
+  }
+
+  const [updated] = await db
+    .update(clients)
+    .set(updates)
+    .where(eq(clients.id, id))
+    .returning();
+
+  return updated;
 }

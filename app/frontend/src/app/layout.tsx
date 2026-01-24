@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { useEffect, useMemo } from "react";
+import { Outlet, useLocation } from "react-router";
 
 import Navbar from "@/components/navbar/navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -13,11 +13,33 @@ type NavbarConfig = {
 
 export default function Layout() {
   const location = useLocation();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollToTop();
+    const rafId = window.requestAnimationFrame(scrollToTop);
+    const timeoutId = window.setTimeout(scrollToTop, 0);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [location.key]);
 
   const navbarConfig = useMemo<NavbarConfig>(() => {
     if (
-      location.pathname.startsWith("/orders/") &&
+      location.pathname.startsWith("/order/") &&
       location.pathname.endsWith("/edit")
     ) {
       return {
@@ -25,41 +47,56 @@ export default function Layout() {
         showBack: true,
       };
     }
-    if (location.pathname.startsWith("/orders/")) {
+    if (location.pathname.startsWith("/order/")) {
       return {
         title: "Detalle del pedido",
         showBack: true,
       };
     }
+    if (
+      location.pathname.startsWith("/purchase-order/") &&
+      !location.pathname.startsWith("/purchase-order/new")
+    ) {
+      return {
+        title: "Detalle orden de compra",
+        showBack: true,
+      };
+    }
+    if (location.pathname.startsWith("/purchase-order/new")) {
+      return {
+        title: "Orden de compra",
+        showBack: true,
+      };
+    }
     switch (location.pathname) {
-      case "/orders":
+      case "/order":
         return {
           title: "Historial de pedidos",
           showBack: true,
         };
-      case "/orders/new":
+      case "/order/new":
         return {
           title: "Nuevo pedido manual",
           showBack: true,
         };
-      case "/purchase-orders":
-        return {
-          title: "Orden de compra",
-          showBack: true,
-        };
-      case "/purchase-orders/list":
+      case "/purchase-order":
         return {
           title: "Ordenes de compra",
           showBack: true,
         };
-      case "/clients/new":
+      case "/client/new":
         return {
           title: "Nuevo cliente",
           showBack: true,
         };
-      case "/purchase-orders/new":
+      case "/client":
         return {
-          title: "Nueva orden de compra",
+          title: "Clientes",
+          showBack: true,
+        };
+      case "/stats":
+        return {
+          title: "Estadísticas",
           showBack: true,
         };
       default:
@@ -68,7 +105,7 @@ export default function Layout() {
           subtitle: "Vasvani App",
         };
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen">

@@ -1,16 +1,15 @@
 import API_BASE_URL from "@/config/api";
 
 export type PurchaseOrderLine = {
-  lineId: number;
   productId: number;
   buyPriceSupplier: number;
+  sellPriceClient: number;
   quantity: number;
-  lineTotal: number | null;
   productName: string | null;
 };
 
 export type PurchaseOrderListItem = {
-  orderId: number;
+  purchaseOrderId: number;
   createdAt: string;
   lines: PurchaseOrderLine[];
 };
