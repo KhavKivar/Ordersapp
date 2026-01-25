@@ -9,6 +9,7 @@ type NavbarProps = {
   action?: ReactNode;
   showBack?: boolean;
   backLabel?: string;
+  backTo?: string;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export default function Navbar({
   action,
   showBack = false,
   backLabel,
+  backTo,
   className,
 }: NavbarProps) {
   return (
@@ -39,6 +41,7 @@ export default function Navbar({
               {showBack && (
                 <BackButton
                   iconOnly
+                  fallbackTo={backTo ?? undefined}
                   label={backLabel}
                 />
               )}

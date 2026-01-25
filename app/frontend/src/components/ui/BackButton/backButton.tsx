@@ -22,15 +22,16 @@ function BackButton({
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     onClick?.(event);
 
+    console.log(fallbackTo);
+    console.log(window.history.length);
+
     if (event.defaultPrevented) {
       return;
     }
-
-    if (fallbackTo && window.history.length <= 1) {
+    if (fallbackTo) {
       navigate(fallbackTo);
       return;
     }
-
     navigate(-1);
   };
 

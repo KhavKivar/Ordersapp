@@ -1,15 +1,27 @@
 import type { FastifyInstance } from "fastify";
 import {
-  listOrders,
   createOrder,
   deleteOrder,
   getOrderById,
+  getOrdersAvailable,
+  listOrders,
   updateOrder,
 } from "../services/orders.js";
 
 export async function ordersRoutes(fastify: FastifyInstance) {
   fastify.get("/orders", async () => {
     const orders = await listOrders();
+    return { orders };
+  });
+
+  fastify.get("/orders/available/:purchaseOrderId", async (request, reply) => {
+    const purchaseOrderId = Number(
+      (request.params as { purchaseOrderId?: string }).purchaseOrderId,
+    );
+    if (!purchaseOrderId) {
+      return reply.status(400).send({ error: "purchaseOrderId is required" });
+    }
+    const orders = await getOrdersAvailable(purchaseOrderId);
     return { orders };
   });
 

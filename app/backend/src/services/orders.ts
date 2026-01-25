@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, isNull, or } from "drizzle-orm";
 
 import { db } from "../db/index.js";
 import { clients, orderLines, orders, products } from "../db/schema.js";
@@ -55,6 +55,64 @@ export async function listOrders(): Promise<OrderListItem[]> {
     .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
     .leftJoin(products, eq(orderLines.productId, products.id));
 
+  const ordersMap = new Map<number, OrderListItem>();
+
+  for (const row of rows) {
+    let order = ordersMap.get(row.orderId);
+    if (!order) {
+      order = {
+        orderId: row.orderId,
+        createdAt: row.createdAt,
+        clientId: row.clientId,
+        localName: row.localName,
+        phone: row.phone,
+        lines: [],
+        purchaseOrderId: row.purchaseOrderId,
+      };
+      ordersMap.set(row.orderId, order);
+    }
+
+    order.lines.push({
+      lineId: row.lineId,
+      productId: row.productId,
+      pricePerUnit: row.pricePerUnit,
+      quantity: row.quantity,
+      lineTotal: row.lineTotal,
+      productName: row.productName,
+      buyPriceSupplier: row.buyPriceSupplier ?? 0,
+    });
+  }
+
+  return Array.from(ordersMap.values());
+}
+
+export async function getOrdersAvailable(purchaseOrderId: number) {
+  const rows = await db
+    .select({
+      createdAt: orders.createdAt,
+      orderId: orders.id,
+      clientId: orders.clientId,
+      localName: clients.localName,
+      lineId: orderLines.id,
+      productId: orderLines.productId,
+      pricePerUnit: orderLines.pricePerUnit,
+      quantity: orderLines.quantity,
+      lineTotal: orderLines.lineTotal,
+      phone: clients.phone,
+      productName: products.name,
+      buyPriceSupplier: products.buyPriceSupplier,
+      purchaseOrderId: orders.purchaseOrderId, // Removed ?? null as select maps the schema type
+    })
+    .from(orders)
+    .innerJoin(clients, eq(orders.clientId, clients.id))
+    .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
+    .leftJoin(products, eq(orderLines.productId, products.id))
+    .where(
+      or(
+        isNull(orders.purchaseOrderId),
+        eq(orders.purchaseOrderId, purchaseOrderId),
+      ),
+    );
   const ordersMap = new Map<number, OrderListItem>();
 
   for (const row of rows) {

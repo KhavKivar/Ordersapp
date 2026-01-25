@@ -5,9 +5,10 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
+import { getOrdersAvailable } from "@/features/orders/api/get-order-availables";
 import {
-  getOrders,
   type OrderListItem,
+  type OrdersResponse,
 } from "@/features/orders/api/get-orders";
 import OrderCard from "@/features/orders/components/OrderCard";
 import { getPurchaseOrder } from "@/features/purchase-orders/api/get-purchase-order";
@@ -76,9 +77,9 @@ export default function PurchaseOrderDetailPage() {
     data: ordersData,
     isPending: ordersPending,
     error: ordersError,
-  } = useQuery({
+  } = useQuery<OrdersResponse>({
     queryKey: ["orders"],
-    queryFn: getOrders,
+    queryFn: () => getOrdersAvailable(purchaseOrderId),
     enabled: isEditing,
   });
 

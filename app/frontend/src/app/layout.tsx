@@ -8,6 +8,7 @@ type NavbarConfig = {
   title: string;
   subtitle?: string;
   showBack?: boolean;
+  backTo?: string;
   action?: React.ReactNode;
 };
 
@@ -73,6 +74,7 @@ export default function Layout() {
         return {
           title: "Historial de pedidos",
           showBack: true,
+          backTo: "/",
         };
       case "/order/new":
         return {
@@ -83,6 +85,7 @@ export default function Layout() {
         return {
           title: "Ordenes de compra",
           showBack: true,
+          backTo: "/",
         };
       case "/client/new":
         return {
@@ -93,6 +96,7 @@ export default function Layout() {
         return {
           title: "Clientes",
           showBack: true,
+          backTo: "/",
         };
       case "/stats":
         return {
@@ -114,6 +118,7 @@ export default function Layout() {
         title={navbarConfig.title}
         subtitle={navbarConfig.subtitle}
         showBack={navbarConfig.showBack}
+        backTo={navbarConfig.backTo}
         action={navbarConfig.action}
       />
       <main>
