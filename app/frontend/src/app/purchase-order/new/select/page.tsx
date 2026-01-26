@@ -86,6 +86,7 @@ export default function PurchaseOrderSelectPage() {
                   name: item.productName ?? "Producto",
                   quantity: item.quantity,
                   pricePerUnit: item.pricePerUnit,
+                  buyPriceSupplier: item.buyPriceSupplier,
                 }))}
                 isSelected={selectedOrders.some(
                   (selected) => selected.orderId === order.orderId,
