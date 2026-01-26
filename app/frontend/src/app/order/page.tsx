@@ -39,10 +39,6 @@ export default function OrdersListPage() {
     if (deleteMutation.isPending) {
       return;
     }
-    const confirmed = window.confirm("Eliminar este pedido?");
-    if (!confirmed) {
-      return;
-    }
     deleteMutation.mutate({ orderId: order.orderId, order });
   };
 
@@ -71,6 +67,7 @@ export default function OrdersListPage() {
                   name: item.productName ?? "Producto",
                   quantity: item.quantity,
                   pricePerUnit: item.pricePerUnit,
+                  buyPriceSupplier: item.buyPriceSupplier,
                 }))}
                 onEdit={(orderId) => navigate(`/order/${orderId}/edit`)}
                 onDelete={() => handleDelete(order)}

@@ -1,6 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PencilLine, Trash2 } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  PencilLine,
+  Phone,
+  Plus,
+  Store,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -16,9 +25,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import FormField from "@/components/ui/Form/form_field";
-import Input from "@/components/ui/Input/input";
+import { Input } from "@/components/ui/input";
 import type { Client } from "@/features/client/api/client.schema";
 import { deleteClient } from "@/features/client/api/delete-client";
 import { getClients } from "@/features/client/api/get-clients";
@@ -108,12 +118,8 @@ export default function ClientsAllPage() {
     if (deleteMutation.isPending) {
       return;
     }
-    const confirmed = window.confirm(
-      `Eliminar al cliente ${client.localName}?`,
-    );
-    if (!confirmed) {
-      return;
-    }
+    console.log(client.id);
+
     deleteMutation.mutate(client.id);
   };
 
@@ -134,80 +140,162 @@ export default function ClientsAllPage() {
   const hasClients = clients.length > 0;
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
-        <p className="max-w-2xl text-base text-muted-foreground">
-          Listado de clientes registrados.
-        </p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <Button variant="primary" onClick={() => navigate("/client/new")}>
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pb-12 pt-6 sm:px-6 sm:pt-12">
+        {/* HEADER: Adaptable de móvil a desktop */}
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 sm:h-10 sm:w-10">
+                <Users className="size-5 sm:size-6" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                Clientes
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground sm:text-base">
+              Gestiona tus locales y contactos registrados.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => navigate("/client/new")}
+            className="h-12 w-full rounded-2xl shadow-md shadow-emerald-100 sm:h-10 sm:w-auto sm:px-6"
+          >
+            <Plus className="mr-2 size-5 sm:size-4" />
             Nuevo cliente
           </Button>
-        </div>
-        <section className="space-y-4">
-          {isPending && <div>Cargando...</div>}
-          {error && <div>Error cargando clientes</div>}
+        </header>
+
+        {/* CONTENIDO PRINCIPAL */}
+        <section className="grid gap-4">
+          {isPending && (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <Loader2 className="size-8 animate-spin text-emerald-500" />
+              <p className="mt-2 font-medium">Cargando clientes...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-3xl border border-rose-100 bg-rose-50 p-8 text-center text-rose-600">
+              <p className="font-semibold">
+                Ocurrió un error al cargar los datos.
+              </p>
+            </div>
+          )}
+
+          {/* ESTADO VACÍO */}
           {!isPending && !error && !hasClients && (
-            <Card className="rounded-3xl border border-border/70 bg-card/90 p-6 text-left">
-              <p className="text-sm text-muted-foreground">
-                No hay clientes registrados aun.
+            <Card className="flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 bg-transparent p-12 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <Store className="size-8" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">
+                Sin clientes aún
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Agrega tu primer local comercial para empezar.
               </p>
             </Card>
           )}
+
+          {/* LISTADO DE TARJETAS */}
           {clients.map((client) => (
             <Card
               key={client.id}
-              className="rounded-3xl border border-border/70 bg-card/90 p-6 text-left"
+              className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-5 transition-all active:scale-[0.98] sm:p-6 sm:hover:border-emerald-200 sm:hover:shadow-lg"
             >
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      Local
-                    </p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {client.localName || "Cliente"}
-                    </p>
+              <div className="flex flex-col gap-5">
+                {/* Top: Nombre y Acciones */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                      <Store className="size-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                        Local Comercial
+                      </span>
+                      <h3 className="text-lg font-bold leading-tight text-slate-900 text-left">
+                        {client.localName || "Cliente"}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  <div className="flex items-center gap-1">
                     <Button
-                      aria-label="Editar cliente"
-                      title="Editar"
                       variant="ghost"
-                      size="icon-lg"
-                      className="rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      size="icon"
+                      className="h-10 w-10 rounded-full text-slate-400 hover:bg-slate-100 sm:h-9 sm:w-9"
                       onClick={() => handleEdit(client)}
                     >
-                      <PencilLine className="size-5" />
+                      <PencilLine className="size-5 sm:size-4" />
                     </Button>
-                    <Button
-                      aria-label="Eliminar cliente"
-                      title="Eliminar"
-                      variant="ghost"
-                      size="icon-lg"
-                      className="rounded-full text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                      onClick={() => handleDelete(client)}
-                    >
-                      <Trash2 className="size-5" />
-                    </Button>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:h-9 sm:w-9"
+                        >
+                          <Trash2 className="size-5 sm:size-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="w-[90vw] max-w-md rounded-[2rem]">
+                        <DialogHeader>
+                          <DialogTitle>¿Eliminar cliente?</DialogTitle>
+                          <DialogDescription>
+                            Se borrarán todos los datos de{" "}
+                            <strong>{client.localName}</strong>. Esta acción es
+                            irreversible.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
+                          <DialogClose asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full rounded-xl sm:w-auto"
+                            >
+                              Cancelar
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            variant="destructive"
+                            className="w-full rounded-xl sm:w-auto"
+                            onClick={() => handleDelete(client)}
+                          >
+                            Eliminar
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
-                <div className="grid gap-3 text-sm sm:grid-cols-2">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      Telefono
-                    </p>
-                    <p className="text-sm font-semibold text-foreground">
-                      {client.phone || "Sin telefono"}
-                    </p>
+
+                {/* Info: Teléfono y Dirección */}
+                <div className="grid grid-cols-1 gap-3 rounded-2xl bg-slate-50 p-4 sm:grid-cols-2 sm:gap-6">
+                  <div className="flex items-center gap-3">
+                    <Phone className="size-4 text-slate-400" />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground text-left">
+                        Teléfono
+                      </p>
+                      <p className="truncate text-sm font-semibold text-slate-700">
+                        {client.phone || "No registrado"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      Direccion
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {client.address || "Sin direccion"}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="size-4 text-slate-400" />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground text-left">
+                        Dirección
+                      </p>
+                      <p className="truncate text-sm font-medium text-slate-600">
+                        {client.address || "No registrada"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -215,74 +303,67 @@ export default function ClientsAllPage() {
           ))}
         </section>
       </div>
+
+      {/* DIALOG DE EDICIÓN - Optimizado para móvil */}
       <Dialog
         open={isEditOpen}
         onOpenChange={(open) => {
           setEditOpen(open);
-          if (!open) {
-            setEditingClient(null);
-          }
+          if (!open) setEditingClient(null);
         }}
       >
-        <DialogContent className="flex h-[100svh] w-full max-w-none flex-col p-0 sm:h-auto sm:max-w-lg">
-          <DialogHeader className="border-b border-border px-6 py-4">
-            <DialogTitle>Editar cliente</DialogTitle>
+        <DialogContent className="fixed bottom-0 top-auto flex max-h-[90vh] w-full max-w-none flex-col rounded-t-[2rem] p-0 sm:relative sm:bottom-auto sm:max-w-lg sm:rounded-[2rem]">
+          <DialogHeader className="px-6 pt-6 text-left">
+            <DialogTitle className="text-xl font-bold">
+              Editar Cliente
+            </DialogTitle>
             <DialogDescription>
-              Actualiza los datos del cliente seleccionado.
+              Modifica los datos del local seleccionado.
             </DialogDescription>
           </DialogHeader>
+
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-1 flex-col"
+            className="flex flex-col p-6 pt-2"
           >
-            <div className="flex-1 space-y-4 px-6 py-4">
+            <div className="space-y-4 pb-6">
               <FormField
-                label="Nombre local"
+                label="Nombre del Local"
                 error={errors.localName?.message}
-                labelClassName="text-sm font-semibold text-slate-700"
               >
-                <Input
-                  registration={register("localName")}
-                  placeholder="Nombre del local"
-                />
+                <Input {...register("localName")} className="h-12 rounded-xl" />
               </FormField>
-              <FormField
-                label="Direccion"
-                error={errors.address?.message}
-                labelClassName="text-sm font-semibold text-slate-700"
-              >
-                <Input
-                  registration={register("address")}
-                  placeholder="Direccion del cliente"
-                />
+              <FormField label="Dirección" error={errors.address?.message}>
+                <Input {...register("address")} className="h-12 rounded-xl" />
               </FormField>
-              <FormField
-                label="Telefono"
-                error={errors.phone?.message}
-                labelClassName="text-sm font-semibold text-slate-700"
-              >
+              <FormField label="Teléfono" error={errors.phone?.message}>
                 <Input
-                  registration={register("phone")}
-                  placeholder="56912345678"
+                  {...register("phone")}
                   inputMode="tel"
-                  maxLength={20}
+                  className="h-12 rounded-xl"
                 />
               </FormField>
             </div>
-            <DialogFooter className="border-t border-border px-6 py-4">
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <DialogClose asChild>
-                <Button variant="outline" type="button">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 rounded-xl sm:h-10"
+                >
                   Cancelar
                 </Button>
               </DialogClose>
               <Button
-                variant="primary"
                 type="submit"
+                variant="primary"
+                className="h-12 rounded-xl sm:h-10"
                 disabled={updateMutation.isPending}
               >
-                {updateMutation.isPending ? "Guardando..." : "Guardar cambios"}
+                {updateMutation.isPending ? "Guardando..." : "Guardar Cambios"}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

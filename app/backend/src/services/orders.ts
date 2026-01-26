@@ -33,6 +33,32 @@ export interface CreateOrderInput {
   items: itemInput[];
 }
 
+export async function hasOrdersByClientId(clientId: number): Promise<boolean> {
+  const rows = await db
+    .select({
+      createdAt: orders.createdAt,
+      orderId: orders.id,
+      clientId: orders.clientId,
+      localName: clients.localName,
+      lineId: orderLines.id,
+      productId: orderLines.productId,
+      pricePerUnit: orderLines.pricePerUnit,
+      quantity: orderLines.quantity,
+      lineTotal: orderLines.lineTotal,
+      phone: clients.phone,
+      productName: products.name,
+      buyPriceSupplier: products.buyPriceSupplier,
+      purchaseOrderId: orders.purchaseOrderId ?? null,
+    })
+    .from(orders)
+    .innerJoin(clients, eq(orders.clientId, clients.id))
+    .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
+    .leftJoin(products, eq(orderLines.productId, products.id))
+    .where(eq(orders.clientId, clientId));
+
+  return rows.length > 0;
+}
+
 export async function listOrders(): Promise<OrderListItem[]> {
   const rows = await db
     .select({

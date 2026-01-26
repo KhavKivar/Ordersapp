@@ -299,6 +299,7 @@ export default function PurchaseOrderDetailPage() {
                           name: item.productName ?? "Producto",
                           quantity: item.quantity,
                           pricePerUnit: item.pricePerUnit,
+                          buyPriceSupplier: item.buyPriceSupplier,
                         }))}
                         isSelected={selectedOrderIds.includes(order.orderId)}
                         onClick={() => handleToggleOrder(order)}

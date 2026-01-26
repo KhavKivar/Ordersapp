@@ -1,11 +1,10 @@
 import makeWASocket, {
-  UserFacingSocketConfig,
   Browsers,
   useMultiFileAuthState,
+  UserFacingSocketConfig,
 } from "baileys";
-import qrcode from "qrcode-terminal";
 import "dotenv/config";
-import { runAiIntent } from "./services/ai.js";
+import qrcode from "qrcode-terminal";
 
 export async function startWhatsApp(): Promise<void> {
   const { state, saveCreds } = await useMultiFileAuthState("auth");
@@ -39,27 +38,25 @@ export async function startWhatsApp(): Promise<void> {
   sock.ev.on("messages.upsert", async ({ messages }) => {
     const msg = messages[0];
     if (!msg.message || msg.key.fromMe) return;
-   
+
     const remoteJid = msg.key.remoteJid;
-   
+
     const remoteJidAlt = msg.key.remoteJidAlt;
     const phoneNumber = remoteJidAlt?.split("@")[0];
     if (!remoteJid || remoteJid.endsWith("@g.us")) return;
-
+    console.log("msg", msg);
     const text =
-      msg.message.conversation ??
-      msg.message.extendedTextMessage?.text ??
-      "";
+      msg.message.conversation ?? msg.message.extendedTextMessage?.text ?? "";
 
-    if (!text.trim()) return;
-  
-    console.log("phoneNumber:", phoneNumber);
+    // if (!text.trim()) return;
 
-    console.log(`New message from ${remoteJid}:`, text);
-    await sock.sendPresenceUpdate("composing", remoteJid);
-    const iaResponse = await runAiIntent(text, remoteJid, phoneNumber);
-    await sock.sendPresenceUpdate("paused", remoteJid);
+    // console.log("phoneNumber:", phoneNumber);
 
-    await sock.sendMessage(remoteJid, { text: iaResponse });
+    // console.log(`New message from ${remoteJid}:`, text);
+    // await sock.sendPresenceUpdate("composing", remoteJid);
+    // const iaResponse = await runAiIntent(text, remoteJid, phoneNumber);
+    // await sock.sendPresenceUpdate("paused", remoteJid);
+
+    // await sock.sendMessage(remoteJid, { text: iaResponse });
   });
 }

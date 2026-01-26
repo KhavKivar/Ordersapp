@@ -143,7 +143,10 @@ export async function ordersRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/orders/:id", async (request, reply) => {
+    console.log("params", request.params);
+
     const id = Number((request.params as { id?: string }).id);
+
     if (!id) {
       return reply.status(400).send({ error: "id is required" });
     }

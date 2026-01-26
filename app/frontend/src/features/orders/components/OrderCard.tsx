@@ -1,11 +1,23 @@
+import { Button } from "@/components/ui/Button/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatChileanPeso } from "@/utils/format-currency";
-import { Pencil, Trash2 } from "lucide-react";
+import { Calendar, Pencil, Trash2, TrendingUp } from "lucide-react";
 
 type OrderLine = {
   name: string;
   quantity: number;
   pricePerUnit: number;
+  buyPriceSupplier: number;
 };
 
 type OrderCardProps = {
@@ -52,91 +64,143 @@ export default function OrderCard({
     0,
   );
 
+  const revenue = items.reduce(
+    (sum, item) =>
+      sum + (item.pricePerUnit - item.buyPriceSupplier) * item.quantity,
+    0,
+  );
+
   return (
     <article
       onClick={onClick}
       className={cn(
-        "rounded-3xl border border-border/70 bg-card/90 p-6 shadow-sm transition-all",
+        "group relative rounded-3xl border border-border/70 bg-card/90 p-6 shadow-sm transition-all cursor-pointer",
         isSelected
-          ? "border-emerald-400 bg-emerald-50 shadow-md ring-2 ring-emerald-200"
-          : "hover:border-border hover:bg-card",
+          ? "border-emerald-400 bg-emerald-50/50 shadow-md ring-2 ring-emerald-200"
+          : "hover:border-emerald-200 hover:bg-card hover:shadow-md",
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+      {/* HEADER: Nombre y Ganancia */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">
             Pedido #{id}
           </p>
-          <p className="mt-2 text-lg font-semibold text-foreground">
+          <h3 className="text-xl font-bold text-foreground leading-tight">
             {localName}
-          </p>
+          </h3>
         </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-            STATUS_STYLES[status]
-          }`}
-        >
-          {STATUS_LABELS[status]}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={cn(
+              "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide",
+              STATUS_STYLES[status],
+            )}
+          >
+            {STATUS_LABELS[status]}
+          </span>
+          <div className="flex items-center gap-1.5 bg-emerald-100/50 px-2 py-1 rounded-lg text-emerald-700">
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="text-xs font-bold">
+              {formatChileanPeso(revenue)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-4 space-y-2">
+      {/* CONTENT: Items (con un divisor sutil) */}
+      <div className="mt-6 space-y-3">
         {items.map((item) => (
-          <div
-            key={`${item.name}-${item.quantity}`}
-            className="flex flex-col gap-1 text-sm"
-          >
-            <span className="font-medium text-foreground">{item.name}</span>
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span>
-                {item.quantity} x {formatChileanPeso(item.pricePerUnit)}
+          <div key={`${item.name}-${item.quantity}`} className="group/item">
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-foreground/90">
+                {item.name}
               </span>
-              <span className="font-semibold text-foreground">
+              <span className="font-bold text-foreground">
                 {formatChileanPeso(item.pricePerUnit * item.quantity)}
               </span>
             </div>
+            <p className="text-xs text-muted-foreground">
+              {item.quantity} unidades × {formatChileanPeso(item.pricePerUnit)}
+            </p>
           </div>
         ))}
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-4 text-sm">
-        <span className="text-muted-foreground">
-          {new Date(createdAt).toLocaleDateString("es-CL", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
-        </span>
-        <div className="flex items-center gap-3">
-          {onEdit && (
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
-              onClick={(event) => {
-                event.stopPropagation();
-                onEdit(id);
-              }}
-              aria-label="Editar pedido"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-          )}
-          {onDelete && (
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-600 transition hover:border-rose-300 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200"
-              onClick={(event) => {
-                event.stopPropagation();
-                onDelete(id);
-              }}
-              aria-label="Eliminar pedido"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          )}
-          <span className="text-base font-semibold text-foreground">
-            {formatChileanPeso(total)}
+      {/* FOOTER: Fecha, Acciones y Total Final */}
+      <div className="mt-6 pt-4 border-t border-dashed border-border flex items-center justify-between">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span className="text-xs font-medium">
+            {new Date(createdAt).toLocaleDateString("es-CL", {
+              day: "2-digit",
+              month: "short",
+            })}
           </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Botones de acción agrupados */}
+          <div className="flex items-center gap-1 mr-2">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(id);
+                }}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
+            {onDelete && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500 transition-colors hover:bg-rose-50 hover:text-rose-700"
+                    onClick={(e) => e.stopPropagation()} // Evita seleccionar la card al abrir el diálogo
+                    aria-label="Eliminar pedido"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent onClick={(e) => e.stopPropagation()}>
+                  <DialogHeader>
+                    <DialogTitle>¿Eliminar pedido?</DialogTitle>
+                    <DialogDescription>
+                      Esta acción no se puede deshacer. Se eliminará el registro
+                      del pedido #{id}.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancelar</Button>
+                    </DialogClose>
+                    <Button
+                      variant="destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(id);
+                      }}
+                    >
+                      Eliminar Pedido
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
+
+          {/* Total Destacado */}
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tighter">
+              Total A Cobrar
+            </p>
+            <p className="text-lg font-black text-foreground">
+              {formatChileanPeso(total)}
+            </p>
+          </div>
         </div>
       </div>
     </article>

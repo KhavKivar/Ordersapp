@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../db/index.js";
 import { clients } from "../db/schema.js";
+import { hasOrdersByClientId } from "./orders.js";
 
 type Client = typeof clients.$inferSelect;
 
@@ -72,6 +73,12 @@ export async function findOrCreateClient(
 }
 
 export async function deleteClient(id: number) {
+  //check if have orders associted
+  const hasOrders = await hasOrdersByClientId(id);
+  if (hasOrders) {
+    throw new Error("Client has orders");
+  }
+
   const [deleted] = await db
     .delete(clients)
     .where(eq(clients.id, id))
