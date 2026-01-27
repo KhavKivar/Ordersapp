@@ -12,7 +12,7 @@
       <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
       <feOffset dx="2" dy="2" result="offsetblur" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.3" />
+        <feFuncA type="linear" slope="0.4" />
       </feComponentTransfer>
       <feMerge>
         <feMergeNode />
@@ -21,24 +21,27 @@
     </filter>
   </defs>
 
-  <!-- Circular Outer Ring (Google-style thickness) -->
+  <!-- Solid Black Circular Background -->
+  <circle cx="250" cy="250" r="245" fill="#000000"/>
+
+  <!-- Circular Outer Ring -->
   <circle cx="250" cy="250" r="230" stroke="url(#gold-grad)" stroke-width="40" fill="none" filter="url(#shadow)"/>
   
   <!-- Central "V" Icon -->
   <path d="M180 160 L250 340 L320 160" stroke="url(#gold-grad)" stroke-width="45" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
 
-  <!-- Brand Name Curved -->
+  <!-- Brand Name Curved (White for contrast on black) -->
   <path id="curve" d="M 80, 250 A 170,170 0 1,1 420,250" fill="none" />
   <text font-family="'Inter', sans-serif" font-weight="900" font-size="52" letter-spacing="8">
-    <textPath href="#curve" startOffset="50%" text-anchor="middle" fill="#1A1A1A">
+    <textPath href="#curve" startOffset="50%" text-anchor="middle" fill="#FFFFFF">
       VASVANI
     </textPath>
   </text>
   
   <!-- Tagline Curved Bottom -->
   <path id="curveBottom" d="M 80, 250 A 170,170 0 1,0 420,250" fill="none" />
-  <text font-family="'Inter', sans-serif" font-weight="600" font-size="18" letter-spacing="10">
-    <textPath href="#curveBottom" startOffset="50%" text-anchor="middle" fill="#666666">
+  <text font-family="'Inter', sans-serif" font-weight="600" font-size="20" letter-spacing="10">
+    <textPath href="#curveBottom" startOffset="50%" text-anchor="middle" fill="#D4AF37">
       LICORES PREMIUM
     </textPath>
   </text>
