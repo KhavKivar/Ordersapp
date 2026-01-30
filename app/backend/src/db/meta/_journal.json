@@ -15,6 +15,13 @@
       "when": 1769458744491,
       "tag": "0001_second_seed",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769806274239,
+      "tag": "0002_3rd",
+      "breakpoints": true
     }
   ]
 }
